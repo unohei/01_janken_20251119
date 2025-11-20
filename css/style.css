@@ -1,0 +1,56 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+button {
+  width: 200px;
+  height: 70px;
+}
+
+main {
+  max-width: 480px;
+  height: 100vh;
+  margin: 0 auto;
+}
+
+section {
+  height: calc(100vh/3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 100px;
+  
+}
+
+.fukidasi {
+    display: flex;
+    align-items: center;
+    position: relative;
+    max-width: 300px;
+    margin-right: 15px;
+    padding: .8em 1.2em;
+    border: 3px solid #2589d0;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333333;
+}
+
+.fukidasi::before,
+.fukidasi::after {
+    position: absolute;
+    right: -15px;
+    width: 15px;
+    height: 30px;
+    clip-path: polygon(0 0, 100% 50%, 0 100%);
+    content: '';
+}
+
+.fukidasi::before {
+    background-color: #2589d0;
+}
+
+.fukidasi::after {
+    right: -11px;
+    background-color: #fff;
+}

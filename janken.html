@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>刹那の後出し</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Noto+Sans+JP"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/janken.css" />
+  </head>
+
+  <body>
+    <main>
+      <section>
+        <h1 data-word="刹那">あとだしジャンケン</h1>
+        <div class="selectbox">
+          <select id="characterSelect">
+            <option value="" selected>キャラクターを選択</option>
+            <option value="golgo">東郷</option>
+            <option value="jigen">次元</option>
+            <option value="ryo">冴羽</option>
+          </select>
+        </div>
+      </section>
+
+      <section id="ruleSection" class="rule_section">
+        <span class="box-title">ルール</span>
+        <p>① 「キャラクターを選択」で対戦相手を選ぶ<br>
+          ②　スペースキーでスタート。対戦相手の手に対して後出しで勝利しろ！<br>
+          　　※キャラクターにより、時間制限が異なります。</p>
+      </section>
+
+      <section class="scoreboard">
+
+        <div class="score-card">
+          <h3>対戦数</h3>
+          <p class="score-number" id="allwin">0</p>
+        </div>
+
+        <div class="score-card">
+          <h3>あなたの勝ち</h3>
+          <p class="score-number" id="youwin">0</p>
+        </div>
+
+        <div class="score-card">
+          <h3>対戦相手の勝ち</h3>
+          <p class="score-number" id="computerwin">0</p>
+        </div>
+
+      </section>
+
+      <section class="fuki-section">
+        <div class="fukidasi" id="fukidasi"></div>
+
+        <div class="character-img">
+          <img id="characterImage" src="./images/golgo.png" alt="">
+        </div> 
+
+        <div class="computer_section" id="computer">
+          <h3>対戦相手の手</h3>
+          <img id="computerHandImg" src="" alt="" style="width:120px;">
+        </div>
+      </section>
+
+      <!-- <section>
+        <p>あなたの手</p>
+        <img id="playerHandImg" src="" alt="" style="width:120px;">
+      </section> -->
+      <div id="countdown" class="countdown-box"></div>
+
+
+      <!-- <section class="start_section" id="start">
+        <button id="startBotton">スタートボタン</button>
+      </section> -->
+
+      <section class="choice_section">
+        <button id="guuButton">
+          <img src="./images/guu.png" class="handBtnImg">
+        </button>
+
+        <button id="chokiButton">
+          <img src="./images/choki.png" class="handBtnImg">
+        </button>
+
+        <button id="paaButton">
+          <img src="./images/paa.png" class="handBtnImg">
+        </button>
+      </section>
+
+      <section class="footer">
+        <div class="timebox">
+          <p>経過時間</p>
+          <p class="timerId"></p>
+        </div>
+
+        <div class="result_section" id="result">
+          <p></p>
+        </div>
+      </section>
+
+
+
+    </main>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+      let youWinCount = 0;
+      let computerWinCount = 0;
+      let allCount = 0;
+
+      let startTime = null;
+      let timerId = null;
+      let finishTimerId = null; // 3秒後の終了用
+      let computerHand = null;
+      let isGameRunning = false;
+      let currentCharacter = null;
+      let currentTimeLimit = 3000; // 一応初期値
+
+      // 手の一覧
+      
+      const handImages = {
+        "グー": "./images/guu.png",
+        "チョキ": "./images/choki.png",
+        "パー": "./images/paa.png"
+      };
+
+      // ======== スタート（スペースキー） ========
+      document.addEventListener("keydown", function (event) {
+        if (event.code === "Space") {
+          startGame();
+        }
+      });
+
+      // ======== スタート（ボタン） ========
+      $("#startBotton").on("click", startGame);
+
+      // ======== ゲーム開始 ========
+      function startGame() {
+
+        // ★ キャラ未選択ならスタートさせない
+        if (!currentCharacter) {
+          console.log("キャラを選んでください");
+          return;
+        }
+
+        // ★ ゲーム中なら開始しない
+        if (isGameRunning) return;
+
+        // ★ 結果リセット
+        $("#result").text("");
+        $("#computerHandImg").hide();
+
+        // ★ 3秒カウントダウン開始
+        let count = 3;
+        $("#countdown").text(count);
+
+        const countdownTimer = setInterval(() => {
+          count--;
+          if (count > 0) {
+            $("#countdown").text(count);
+          } else {
+            $("#countdown").text("スタート！");
+            clearInterval(countdownTimer);
+
+            setTimeout(() => {
+              $("#countdown").text(""); // カウントダウン消去
+              runGame();                // ← ゲーム本編へ
+            }, 800);
+          }
+        }, 1000);
+      }
+
+      // ======== ゲーム開始 ========
+      function runGame() {
+        isGameRunning = true;
+        console.log("ゲーム開始！");
+
+        startTime = Date.now();
+        $(".timerId").text("計測中...");
+        
+        // 経過時間計測
+        timerId = setInterval(() => {
+          const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+          $(".timerId").text(elapsed + " 秒");
+        }, 50);
+
+        // コンピュータの手を決める
+        const hands = ["グー", "チョキ", "パー"];
+        const randomNumber = Math.floor(Math.random() * 3);
+        computerHand = hands[randomNumber];
+        document.getElementById("computerHandImg").src = handImages[computerHand];
+        $("#computerHandImg").show();
+
+        // 3秒後に強制終了
+        finishTimerId = setTimeout(() => {
+          console.log("時間切れ！");
+          endGame("timeover");
+        }, currentTimeLimit);
+      }
+
+
+      // ======== プレイヤーの手ボタン ========
+      $("#guuButton").on("click", () => playerHand("グー"));
+      $("#chokiButton").on("click", () => playerHand("チョキ"));
+      $("#paaButton").on("click", () => playerHand("パー"));
+
+      function playerHand(hand) {
+        if (!isGameRunning) return;
+
+        // document.getElementById("playerHandImg").src = handImages[hand];
+
+        const reactionTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        console.log("手を出した時間：" + reactionTime + "秒");
+
+        endGame("player", hand, reactionTime);
+      }
+
+
+      // ======== ゲーム終了処理 ========
+      function endGame(type, playerHand = null, reactionTime = null) {
+
+        isGameRunning = false;
+
+        // タイマー停止
+        clearInterval(timerId);
+        clearTimeout(finishTimerId);
+
+        allCount++;
+
+        // 時間切れ（無条件で負け）
+        if (type === "timeover") {
+          computerWinCount++;
+          $("#result").text("時間切れ！あなたの負け");
+          $("#computerwin").text(computerWinCount);
+          $("#allwin").text(allCount);
+          return;
+        }
+
+        // 勝敗判定（あいこも負け）
+        const player = playerHand;
+        const computer = computerHand;
+
+        let result = "";
+
+        if (player === computer) {
+          result = "あいこ → 負け！";
+          computerWinCount++;
+        }
+        else if (
+          (player === "グー" && computer === "チョキ") ||
+          (player === "チョキ" && computer === "パー") ||
+          (player === "パー" && computer === "グー")
+        ) {
+          result = "あなたの勝ち！";
+          youWinCount++;
+        } else {
+          result = "あなたの負け…";
+          computerWinCount++;
+        }
+
+        // 結果表示
+        $("#result").text(
+          `結果：${result}（反応時間：${reactionTime}秒）`
+        );
+
+        $("#youwin").text(youWinCount);
+        $("#computerwin").text(computerWinCount);
+        $("#allwin").text(allCount);
+      }
+
+      //
+      const characterData = {
+        golgo: {
+          img: "./images/togo.png",
+          message: "用件を聞こうか・・",
+          timeLimit: 1000
+        },
+        jigen: {
+          img: "./images/jigen.png",
+          message: "俺に言わせりゃ、浪漫に欠けるな",
+          timeLimit: 2000
+        },
+        ryo: {
+          img: "./images/saeba.png",
+          message: "俺を呼んだのは君だろ？",
+          timeLimit: 3000
+        }
+      };
+
+      // タイプライター表示
+      function typeText(elementId, text, speed = 50) {
+        let index = 0;
+        const element = document.getElementById(elementId);
+        element.textContent = "";
+
+        const timer = setInterval(() => {
+          element.textContent += text[index];
+          index++;
+
+          if (index >= text.length) {
+            clearInterval(timer);
+          }
+        }, speed);
+      }
+
+      // セレクトボックス変更イベント
+      // let currentCharacter = null;   // ← 追加
+
+      document.getElementById("characterSelect").addEventListener("change", function () {
+        const selected = this.value;
+
+        const fukiSection = document.querySelector(".fuki-section");
+
+        if (selected === "") {
+          currentCharacter = null;
+          document.getElementById("characterImage").src = "";
+          document.getElementById("fukidasi").textContent = "";
+          fukiSection.style.display = "none";   // ← 初期：非表示
+          return;
+        }
+
+        currentCharacter = selected;
+
+        const data = characterData[selected];
+
+        // fuki-section を表示
+        fukiSection.style.display = "flex";   // ← 横並びなので flex
+
+        // 吹き出しと画像更新
+        document.getElementById("characterImage").src = data.img;
+        typeText("fukidasi", data.message);
+
+        currentTimeLimit = data.timeLimit;
+      });
+
+
+
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,287 @@
+/* ====== ベース ====== */
+
+* {
+  margin: 0;
+  box-sizing: border-box;
+  font-family: 'ヒラギノ明朝 ProN';
+}
+
+button {
+  width: 200px;
+  height: 70px;
+}
+
+main {
+  max-width: 800px;
+  height: 100vh;
+  margin: 0 auto;
+}
+
+/* 全sectionは通常は縦レイsアウトでOK */
+section {
+  height: calc(100vh / 8);
+  display: flex;
+  justify-self: center;
+  align-items: center;
+}
+
+h1 {
+    position: relative;
+    padding-top: 3em;
+    color: #333333;
+    display: flex;
+    margin-right: 100px;
+}
+
+h1::before {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    color: #ff9966;
+    font-size: 3em;
+    line-height: 1;
+    content: attr(data-word);
+    pointer-events: none;
+    /* font-family: 'ヒラギノ明朝 ProN'; */
+}
+
+.selectbox {
+    position: relative;
+    padding-top: 8em;
+    margin-right: 50px;
+}
+
+.selectbox::before,
+.selectbox::after {
+    position: absolute;
+    content: '';
+    pointer-events: none;
+}
+
+.selectbox::before {
+    right: 0;
+    display: inline-block;
+    width: 2.8em;
+    height: 2.8em;
+    border-radius: 0 3px 3px 0;
+    background-color: #2589d0;
+    content: '';
+}
+
+.selectbox::after {
+    position: absolute;
+    top: 50%;
+    right: 1.4em;
+    transform: translate(50%, -50%) rotate(45deg);
+    width: 6px;
+    height: 6px;
+    border-bottom: 3px solid #fff;
+    border-right: 3px solid #fff;
+    content: '';
+}
+
+.selectbox select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    min-width: 230px;
+    height: 2.8em;
+    padding: .4em 3.6em .4em .8em;
+    border: 2px solid #2589d0;
+    border-radius: 3px;
+    color: #333333;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.selectbox select:focus {
+    outline: 1px solid #2589d0;
+}
+
+/* ===== 吹き出し＆画像エリア ===== */
+.fuki-section {
+  /* display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  height: 180px; */
+  display: none;
+  margin-top: 3em;
+  gap: 3em;
+}
+
+/* 吹き出し */
+.fukidasi {
+  display: inline-block;
+  max-width: 200px;
+  padding: .8em 1.2em;
+  background: #fff;
+  border: 3px solid #2589d0;
+  border-radius: 5px;
+  position: relative;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.fukidasi::before,
+.fukidasi::after {
+  position: absolute;
+  right: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 30px;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  content: "";
+}
+
+.fukidasi::before {
+  background-color: #2589d0;
+}
+
+.fukidasi::after {
+  right: -11px;
+  background-color: #fff;
+}
+
+/* キャラ画像 */
+.character-img img {
+  width: 150px;        /* ← 好きなサイズ */
+  height: auto;
+  display: block;
+}
+
+.handBtnImg {
+  width: 120px;
+  height: auto;
+}
+
+.choice_section button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.choice_section button {
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.choice_section button:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.8));
+}
+
+.choice_section button:active {
+  transform: scale(0.95);
+  filter: brightness(1.4);
+}
+
+.rule_section {
+    position: relative;
+    margin: 2em 0;
+    padding: 0.5em 1em;
+    border: solid 3px #333333;
+    border-radius: 8px;
+    margin-top: 5em;
+}
+.rule_section .box-title {
+    position: absolute;
+    display: inline-block;
+    top: -13px;
+    left: 10px;
+    padding: 0 9px;
+    line-height: 1;
+    font-size: 19px;
+    background: #FFF;
+    color: #333333;
+    font-weight: bold;
+}
+.rule_section p {
+    margin: 0; 
+    padding: 0;
+}
+
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 30px;
+  text-align: center;
+}
+
+/* ===== 個別カード ===== */
+/* ▼3つのスコアを横並びで安定させる */
+.score-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 30px;
+  margin: 20px 0;
+}
+
+/* ▼スコアカードを崩れないように固定化 */
+.score-card {
+  flex: 1;
+  min-width: 200px;
+  max-width: 280px;
+  background: #ffffff;
+  padding: 20px 10px;
+  border-radius: 15px;
+  border: 2px solid #333333;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+/* タイトル */
+.score-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+/* 数値部分 */
+.score-number {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0;
+}
+
+.computer_section {
+  flex: 1;
+  min-width: 200px;
+  max-width: 280px;
+  background: #ffffff;
+  padding: 20px 10px;
+  border-radius: 15px;
+  border: 2px solid #333333;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+/* タイトル */
+.computer_section h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 100px;
+  margin: 20px 0;
+  font-size: 20px;
+
+}
+.countdown-box {
+  margin-top: 2em;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  color: green;
+  height: 25px; /* レイアウト崩れ防止 */
+}
